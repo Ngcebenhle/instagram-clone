@@ -11,16 +11,4 @@ const firebaseConfig = {
 };
 firebase.initializeApp(firebaseConfig);
 
- // Initialize the FirebaseUI Widget using Firebase.
- var ui = new firebaseui.auth.AuthUI(firebase.auth());
-
-  const auth = new firebase.auth();
- 
- ui.start('#firebaseui-auth-container', {
-  signInOptions: [
-    firebase.auth.EmailAuthProvider.PROVIDER_ID
-  ],
-  // Other config options...
-});
-
  
