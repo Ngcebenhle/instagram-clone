@@ -20,11 +20,13 @@ class App
     //upload button
      this.uploadButton = document.querySelector('#upload-button');
 
+     //this.imageview = document.querySelector('#display');
+
      //more options button
      this.more =document.querySelector('#moreOptions')
          
     // the post section/ elements
-    this.selectedMedia = document.querySelector('#upload-image').files[0];
+    this.selectedMedia = document.querySelector('#upload-image');
     this.description = document.querySelector('#upload-image-description').value;
 
     //post button 
@@ -60,6 +62,12 @@ class App
     //post button event listener uploads the informaion
     this.post.addEventListener('click', () => {
       
+
+
+      
+    
+
+
       this.handleUpload();
       this.handleDataSave()
       this.handleRead();
@@ -87,6 +95,18 @@ class App
     this.delete.addEventListener('clicl',() =>{
        this.handleDelete()
     });
+
+    this.selectedMedia.addEventListener("change",function(){
+
+      const reader = new FileReader();
+      
+      reader.addEventListener("load", () =>{
+        var uploaded_image = reader.result;
+        
+        this.imageview = document.querySelector('#display').style.backgroundImage = `url(${uploaded_image})`
+      });
+      reader.readAsDataURL(this.files[0]);
+    })
   }
 
 
@@ -149,12 +169,15 @@ class App
   }
 
   handleUpload(){
+ 
+    
+  
 
-    function uploadBytes(file){
+function uploadBytes(file){
       
       var storageRef = firebase.storage().ref();
-      
-      var img = storageRef.child('images/Auth-code.png' )
+      var img = storageRef.child('images/Auth-code.PNG')
+     
       // 'file' comes from the Blob or File API
       img.put(file).then((snapshot) => {
         console.log('Uploaded a blob or file!');
@@ -191,7 +214,7 @@ class App
           console.log("Document written with ID: ", docRef.id);
       })
       .catch((error) => {
-          console.error("Error adding document: ", error);
+          //console.error("Error adding document: ", error);
       });
 
     }
