@@ -5,50 +5,53 @@ class App
     this.userId = "";
     this.ui = new firebaseui.auth.AuthUI(auth);
      
+    /**----------------------------------------------------------- */
     //screens and modal divs 
     this.myAuth = document.querySelector('#firebaseui-auth-container');
     this.app = document.querySelector('#main-app-content');
 
 
     this.upload = document.querySelector('#upload-screen');
-    this.editModal = document.querySelector('#edit-modal').style.display = "none";
+    this.editModal = document.querySelector('#edit-modal');
     
     
     //log out button
     this.logout = document.querySelector('#logout');
 
+   /**------------------------------Upload screen ----------------------------------------- */
+
     //upload button
      this.uploadButton = document.querySelector('#upload-button');
 
-     //this.imageview = document.querySelector('#display');
-
-     //more options button
-     this.more =document.querySelector('#moreOptions')
-         
+   
     // the post section/ elements
     this.selectedMedia = document.querySelector('#upload-image');
     
     //post button 
     this.post = document.querySelector('#post-button');
+
+    //Update Button
     this.updatebutton = document.querySelector('#update-button')
-     
+  
+    /**----------------------------------------------------------------------- */
+
+
     // Modal menu tabs 
     this.modaliterms = document.getElementsByClassName('modal-tabs');
 
-    //Modal buttons
-    this.edit =document.querySelector('#editButton');
-    this.delete =document.querySelector('#deleteButton');
-
-
-
-
-
-
-
-
-    //this.handleAuth();
     
+    /**---------------- //Modal buttons------------------ */
+   
+    //edit button
+    this.edit = document.querySelector('#editButton');
+
+    //delete button 
+    this.delete = document.querySelector('#deleteButton');
+
+   /**------------------------------------------------------- */
     
+    this.handleAuth();
+    this.handleDataPopulation();
     
     
     
@@ -62,52 +65,24 @@ class App
     this.uploadButton.addEventListener('click', () => {
 
       this.uploadScreen();
-
-    });
-
-    //post button event listener uploads the informaion
-    this.post.addEventListener('click', () => {
-      
-
-      this.handleUpload();
-      //this.handleDataSave()
-      this.handleRead();
-
-    });
-
-    //more options button 
-    this.more.addEventListener('click', () => {
-    });
-
-    this.more.addEventListener('clicl',() =>{
-       
-      this.handleModalcall()
+      var displayImage = document.getElementById('image-view');
+      displayImage.style.display = "none";
       
     });
 
-    
-    this.edit.addEventListener('clicl',() =>{
-
-      this.uploadScreen()
-      this.updatebutton.style.display = "block";
-      
-    });
-
-    this.delete.addEventListener('clicl',() =>{
-       this.handleDelete()
-    });
-
-    //image display on the screen drom selected images
+  
+    //image display on the screen dom selected images
     this.selectedMedia.addEventListener("change",(e)=>{
        
       const reader = new FileReader();
 
-      const files = e.target.files;
+       this.files = e.target.files;
       
-      for (const file of files) {
+      for (const file of this.files) {
 
-        const fileName = file.name;
-        console.log(fileName)
+        //this.fileName = file.name;
+        console.log(this.fileName)
+
       }
 
       reader.addEventListener("load", () =>{
@@ -115,18 +90,30 @@ class App
         var uploaded_image = reader.result;
         this.imageview = document.querySelector('#display').style.backgroundImage = `url(${uploaded_image})`
       });
-      reader.readAsDataURL(files[0]);
-    })
+      reader.readAsDataURL(this.files[0]);
+
+    });
+
+
+    //post button event listener uploads the information
+    this.post.addEventListener('click', () => {
+    
+          this.handleUpload(this.fileName,this.files[0])
+    
+    });
+    
   }
 
 
-      handleAuth(){
+    handleAuth(){
         auth.onAuthStateChanged((user) => {
           if (user) {
 
-            console.log(user);
+            //console.log(user);
             this.userId = user.uid;
+            this.userName = user.displayName;
             this.redirectToApp();
+            
 
           } else {
             this.redirectToAuth();
@@ -136,17 +123,18 @@ class App
         });
     } 
 
-      redirectToApp(){
+    redirectToApp(){
         this.myAuth.style.display = "none";
         this.app.style.display = "block";
         this.upload.style.display = "none";
 
     }
 
-
-      redirectToAuth(){
+    redirectToAuth(){
+        
         this.myAuth.style.display = "block";
         this.app.style.display = "none";
+        this.upload.style.display = "none";
       
       
         this.ui.start('#firebaseui-auth-container', {
@@ -158,7 +146,7 @@ class App
               this.redirectToApp();
             },
           },
-          signInOptions: [
+            signInOptions: [
             firebase.auth.EmailAuthProvider.PROVIDER_ID,
             firebase.auth.GoogleAuthProvider.PROVIDER_ID,
           ],
@@ -167,7 +155,7 @@ class App
         
     }
       
-      handleLogout(){
+    handleLogout(){
         auth
           .signOut()
           .then(() => {
@@ -177,226 +165,703 @@ class App
             console.log("ERROR OCCURED", error);
           });
     }
+ 
+    handleUpload(name,file){
 
-      handleUpload(){
-    
-        
-    /*
 
-    function uploadBytes(file,image){
-           
-          
-          
-          var storageRef = firebase.storage().ref();
-
-          var img = storageRef.child('images/' + image)
-        
-          // 'file' comes from the Blob or File API
-          img.put(file).then((snapshot) => {
-            console.log('Uploaded a blob or file!');
-            console.log(image)
-          
-          });
-
-          //get the url and store it in a collection
-          //const imgURL = img.snapshot.ref.getDownloadURL();
-
-          
-        }
-        //var images = this.selectedMedia.files[0].name
-        //console.log(images)
-        
-        uploadBytes(this.fileName)
-        
-      
-    */
         var metadata = {
           contentType: 'image/jpeg',
         };
-        var storageRef = firebase.storage().ref();
 
-        var uploadTask = storageRef.child('images/' + this.fileName).put(this.files, metadata);
+           const  uidpin = this.userId
+            //console.log(uidpin);
+
+        var storageRef = firebase.storage().ref();
+        var uploadTask = storageRef.child('images/' + name).put(file, metadata);
         
-          uploadTask.on('state_changed',(snapshot) => 
-          {
+              uploadTask.snapshot.ref.getDownloadURL().then((url) =>
+            {
+            
+              var imageurl = url;
+              var description = document.querySelector('#upload-image-description');
+
+              var Post = db.collection("Users");
+              
+              Post.add({
+                UserPostId: this.userId,
+                PostUserName: this.userName,
+                Name: description.value,
+                Link: imageurl
+              });
+
+             alert("image added successfully")
+      
+
              console.log("upload successful")
+             
           },
           
-          function(error)
-          {
+          function(error){
                 
             alert("error in uploading Image:")
 
           },
-           function(){
-             uploadTask.snapshot.ref.getDownloadURL().then(function(url)
-             {
-              var imageurl = url;
-              var description = document.querySelector('#upload-image-description');
-
-              var Post = db.collection("Users").doc("Test");
-
-              Post.set({
-                Name: description.value,
-                Link: imageurl
-              });
-              alert("image added successfully ")
-            });
-
-           });
-  
-    }
-      
-      handleDataSave(){
-
-        //function DataSavesToDatabase( urladdress){
-                                          // in the.doc put he user uid
-          var Post = db.collection("Post").doc("Test");
-                
-            Post.set({
-              
-              Description: this.description.value,
-              imgURL: "work"
-              //imageurl
-
-             
-          })
-          .then((docRef) => {
-              console.log("Document written with ID: ", docRef.id);
-          })
-          .catch((error) => {
-              //console.error("Error adding document: ", error);
-          });
-
-       // }
-       // DataSavesToDatabase()
-
+          
+          
+          );
+        
     }
 
-      handleRead(){
+    handleRead(Dataid){
 
         
-          var docRef = db.collection("Users").doc("Test");
-
+          var docRef = db.collection("Users").doc(Dataid);
+      
             docRef.get().then((doc) => {
                 if (doc.exists) {
-                    console.log("Document data:", doc.data());
-                } else {
-                    // doc.data() will be undefined in this case
-                    console.log("No such document!");
+                    
+                    //console.log("Document data:", doc.data());
+                    //console.log(doc.data().Link)
+
+                    this.imgLink = doc.data().Link;
+                    this.caption = doc.data().Name
+
+                
+                  } else {
+                   
+                    console.log("No such document!"+this.userId);
+
                 }
             }).catch((error) => {
                 console.log("Error getting document:", error);
             });
 
-
+      
     }
 
-      handleDataPopulation(){
-        //Read the data from the databasase and populate the elements
+    handleDataPopulation(){
+   
+          db.collection("Users").get().then((querySnapshot) => {
+          querySnapshot.forEach((doc) => {
+      
+                //console.log(doc.id, " => ", doc.data());
+              
+              this.handlePost(doc);
 
-      // in the.doc put he user uid tell it to read all the post 
-      var neededinfo =db.collection("Post").doc("Test").
-        
-
-      // dont display the data but assign it to the post ellements per post sort of like create all those elements of the post 
-      // as it loops through the data
-      neededinfo.get().then((querySnapshot) => {
-      querySnapshot.forEach((doc) => {
-      console.log(`${doc.id} => ${doc.data()}`);
-
-      });
-    });
-
-    }
-
-      handleDelete(){
-
-          function deletePicture(){
-            
-            // Create a reference to the file to delete
-          var desertRef = storageRef.child('images/desert.jpg'); // pay special attentin to the referance 
-
-          // Delete the file
-          desertRef.delete().then(() => {
-            // File deleted successfully
-          }).catch((error) => {
-            // Uh-oh, an error occurred!
+            });
           });
+ 
+    }
 
-        }
+    handleDelete(id){
 
-        function deleteData(){
+      var DeletedocRef = db.collection("Users").doc(id);
+          
+      DeletedocRef.delete().then(() => {
 
-          db.collection("cities").doc("DC").delete().then(() => {
+         alert("Document successfully deleted!")
             console.log("Document successfully deleted!");
         }).catch((error) => {
-            console.error("Error removing document: ", error);
+            alert("Error removing document: ", error);
         });
 
-        }
-
-        deletePicture()
-        deleteData()
     }
       
-      handleUpdate(){
+    handleUpdate(id){
 
-        var washingtonRef = db.collection("cities").doc("DC");
-
-          // Set the "capital" field of the city 'DC'
-          return washingtonRef.update({
-              capital: true
+        var toBeUpdated = db.collection("Users").doc(id);
+        var description = document.querySelector('#upload-image-description');
+          
+        
+        toBeUpdated.update({
+             Name: description.value
           })
           .then(() => {
-              console.log("Document successfully updated!");
+            
+            alert("Document successfully updated!");
           })
           .catch((error) => {
-              // The document probably doesn't exist.
-              console.error("Error updating document: ", error);
+             
+              alert("Error updating document: ", error);
           });
 
-
-    // try this first 
-
-        db.collection("users").doc("frank").update({
-          "age": 13,
-          "favorites.color": "Red"
-        })
-        .then(() => {
-          console.log("Document successfully updated!");
-        });
     }
 
-    handleModalcall(){
+    handleModalcall(id){
     //if the post id belongs to the same user uid and the same one currently logged in
-    if(2+2){
+    if(this.userId == id){
+      //console.log(this.userId)
               
-      // But first set the edit and delet menu tabs RED and visiable
+      // But first set the edit and delete menu tabs RED and visiable
 
-    this.editModal.style.display = "block";
+      this.edit.style.color = "Red";
+      this.delete.style.color = "Red";
 
-
+      this.editModal.style.display = "block";
+       
 
 
     }else{
       //display the menu tab without the two menu tabs
+      
+      this.edit.style.display = "none";
+      this.delete.style.display = "none";
+
+      this.editModal.style.display = "block";
+    }
+    
 
     }
-    }
 
-      uploadScreen(){
+    uploadScreen(){
         this.myAuth.style.display = "none";
         
         this.app.style.display = "none";
         
         this.upload.style.display = "block";
     }
+
+    handleImageRetrieve(){
+
+      var displayImage = document.getElementById('image-view');
+      displayImage.setAttribute('src', this.imgLink);
+    
+      var description = document.querySelector('#upload-image-description');
+      description.setAttribute('value',this.caption)
+
+      
+    }
+   
+    handlePost(doc){
+     
+      //****************************************** */
+              //  ---------Global Variables------------
+
+      const UserName = doc.data().PostUserName;
+      const name = "Ngceb'enhle Shabangu"
+
+       //****************************************** */
+
+     /** Start */
+
+     /**------------------------------------------------------------- Layer 0------------------------------------------------ */ 
+     
+     //Main Posts Housing everthing to be appended into Posts.
+     
+     var posts = document.getElementById("pts");
+
+     //Individual Post creation Start 
+
+     let post = document.createElement('div');
+     post.setAttribute('class','post');
+     post.setAttribute('id',doc.id)
+     //set id to be the document id
+     //post.setAttribute('id',doc.id);
+    
+     //adding the individual post div into the Post collection div
+     posts.appendChild(post);
+
+     /**------------------------------------------------------------- Layer 1------------------------------------------------ */ 
+
+     //****************************************** */
+     // Elements/divs inside of The Post div 
+
+     //header div
+
+     let header = document.createElement('div');
+     header.setAttribute('class','header');
+     post.appendChild(header);
+
+     //Body div
+
+     let body = document.createElement('div');
+     body.setAttribute('class','body');
+     post.appendChild(body);
+
+     //Footer div
+   
+     let footer = document.createElement('div');
+     footer.setAttribute('class','footer');
+     post.appendChild(footer);
+
+     //Add Comments div
+
+     let addComments = document.createElement('div');
+     addComments.setAttribute('class','add-comment');
+     post.appendChild(addComments);
+     
+     /**--------------------------------------------------------------Layer 2----------------------------------------------- */
+    
+     //****************************************** */
+      // Elements/divs inside of The header div 
+      
+      // Profile-area
+      let profileArea = document.createElement('div');
+      profileArea.setAttribute('class','profile-area');
+      header.appendChild(profileArea);
+
+      // Options
+      let options = document.createElement('div');
+      options.setAttribute('class','options');
+      header.appendChild(options);
+
+     //*********************************************** */
+     // Elements/divs inside of The Body div
+
+     //Body Image
+     let mainImageContent = document.createElement('img');
+     mainImageContent.setAttribute('src',doc.data().Link)
+     setAttribute(mainImageContent,{
+      "alt":"Photo by Jay Shetty on September 12, 2020. Image may contain: 2 people.",
+      "class":"FFVAD",
+      "decoding":"auto",
+      "sizes":"614px",
+      "style":"object-fit: cover",
+     })
+     
+     //set multiple attributes with a fuction 
+     body.appendChild(mainImageContent);
+
+     //*********************************************** */
+     // Elements/divs inside of The Footer div 
+     
+     //User Actions 
+    
+     let userActions = document.createElement('div');
+     userActions.setAttribute('class','user-actions');
+     footer.appendChild(userActions);
+
+     //Likes
+
+     let likesstring = `Liked by <b>${name}.b</b> and <b>others</b>`
+     
+     
+     let likes = document.createElement('span');
+     likes.setAttribute('class','likes');
+     likes.innerHTML = likesstring;
+     footer.appendChild(likes);
+
+     //caption
+     
+     let caption = document.createElement('span');
+     caption.setAttribute('class','caption');
+     footer.appendChild(caption);
+
+     //comments
+     
+     let comments = document.createElement('span');
+     comments.setAttribute('class','comment');
+     footer.appendChild(comments);
+
+     //Posted Time
+     
+     var timePosted = "5 hours"
+
+     let postedTime = document.createElement('span');
+     postedTime.setAttribute('class','posted-time');
+     postedTime.innerText = timePosted;
+     footer.appendChild(postedTime);
+
+     //*********************************************** */
+     // Elements/divs inside of The Add Comments div 
+
+     //Comment Input Field
+     
+     let commentInput = document.createElement('input');
+     commentInput.setAttribute('placeholder','Add a comment...');
+     // save the input value to the database
+     addComments.appendChild(commentInput);
+
+     //Comment Input Field
+          
+     let postButton = document.createElement('a');
+     postButton.setAttribute('class','post-btn');
+     // add an onclick EventListener to save the comment
+     addComments.appendChild(postButton);
+
+
+     /**--------------------------------------------------------------Layer 3----------------------------------------------- */
+     
+     //*********************************************** */
+     // Elements/divs inside of The Profile-area div 
+     
+     //Profile Pic div 
+    
+     let profilePic = document.createElement('div');
+     profilePic.setAttribute('class','post-pic');
+     profileArea.appendChild(profilePic);
+
+     //Profile Name 
+     
+     let profileName = document.createElement('span');
+     profileName.setAttribute('class','profile-name');
+     profileName.textContent = UserName//--------------------------Get correct and Corrosponding Name------//
+     
+     profileArea.appendChild(profileName);
+  
+     //*********************************************** */
+     // Elements/divs inside of The Options div 
+
+     //More options icon  
+    
+     let moreOptios = document.createElement('div');
+     setAttribute(moreOptios,{
+      "class":"Igw0E rBNOH YBx95 _4EzTm",
+      "style":"height: 24px", 
+      "style":"width: 24px"
+    })
+     options.appendChild(moreOptios);
+
+
+     //*********************************************** */
+     // Elements/divs inside of The User Actions div 
+
+     //Like Comment and Share 
+    
+     let likeCommentShare = document.createElement('div');
+     likeCommentShare.setAttribute('class','like-comment-share');
+     userActions.appendChild(likeCommentShare);
+
+     //bookmark 
+    
+     let bookmark = document.createElement('div');
+     bookmark.setAttribute('class','bookmark');
+     userActions.appendChild(bookmark);
+
+     //*********************************************** */
+     // Elements/divs inside of The Caption div 
+     
+
+     let captionUsername = document.createElement('span');
+     captionUsername.setAttribute('class','caption-username');
+     captionUsername.innerHTML = `<b>${UserName}</b>`; //---------------------------Get correct and corrosponding Name------------//
+     caption.appendChild(captionUsername);
+
+     let captionText = document.createElement('span');
+     captionText.setAttribute('class','caption-text');
+     captionText.textContent = (" " + doc.data().Name); //-----------------------------Get correct and corrosponding caption------------//
+     caption.appendChild(captionText);
+     
+
+      //*********************************************** */
+     // Elements/divs inside of The Comments div 
+     //comments
+     
+     let commenterUsername = document.createElement('span');
+     commenterUsername.setAttribute('class','caption-username');
+     commenterUsername.innerHTML = `<b>${name}</b>`; //---------------------------Get correct and corrosponding Name------------//
+     comments.appendChild(commenterUsername);
+
+     let commenterText = document.createElement('span');
+     commenterText.setAttribute('class','caption-text');
+     commenterText.textContent = (" "+"Fire Fire"); //-----------------------------Get correct and corrosponding comment------------//
+     comments.appendChild(commenterText);
+
+     /**--------------------------------------------------------------Layer 4----------------------------------------------- */
+   
+     //*********************************************** */
+     // Elements/divs inside of The Profile Pic div 
+
+     //Profile Image
+
+     let profileImage = document.createElement('img');
+     setAttribute(profileImage,{
+      "alt":"jayshetty's profile picture",
+      "class":"_6q-tv",
+      "data-testid":"user-avatar",
+      "draggable":"false",
+      "src":"assets/akhil.png"
+    }) 
+     //profileImage.setAttribute('class','caption-text');
+     profilePic.appendChild(profileImage);
+
+  
+      //*********************************************** */
+          var id =  post.getAttribute('id');
+          //e.target.parentElement.getAtt
+      //*********************************************** */
+
+
+      //*********************************************** */
+      // Elements/divs inside of The More options icon div
+
+
+     let moreIcon = document.createElementNS("http://www.w3.org/2000/svg","svg");
+     setAttribute(moreIcon,{
+      "id":"moreOptions",
+      "aria-label":"More options",
+      "class":"_8-yf5",
+      "fill":"#262626",
+      "height":"16",
+      "viewBox":"0 0 48 48",
+      "width":"16",
+     })
+     moreIcon.addEventListener('click',()=>{
+      this.handleModalcall(doc.data().UserPostId)
+      this.handleRead(doc.id)
+       
+      this.edit.addEventListener('click',() =>{
+      
+      
+        this.uploadScreen();
+        this.handleImageRetrieve();
+  
+  
+        var displayImage = document.getElementById('image-view');
+        displayImage.style.display = "block";
+
+       var imageview = document.querySelector('#display').style.display = "none";
+
+
+        this.post.style.display = "none";
+        this.updatebutton.style.display = "block";
+        this.editModal.style.display = "none";
+  
+           // Update button
+       this.updatebutton.addEventListener('click', () => {
+        this.handleUpdate(doc.id);
+        }); 
+  
+       });
+  
+      this.delete.addEventListener('click',(e) =>{
+        this.handleDelete(id)
+        
+     });
+
+     var close =document.getElementById('modalClose')
+      close.addEventListener('click',()=>{
+      this.editModal.style.display = "none";
+     })
+  
+     })
+     moreOptios.appendChild(moreIcon);
+    
+     //*********************************************** */
+     // Elements/divs inside of The Like Comment and Share div 
+
+     //Like Icon
+    
+     let likeIcon = document.createElement('div');
+     likeCommentShare.appendChild(likeIcon);
+
+     //Comment Icon
+
+     let commentIcon = document.createElement('div');
+     commentIcon.setAttribute('class','margin-left-small');
+     likeCommentShare.appendChild(commentIcon);
+
+     //Share Icon
+
+     let shareIcon = document.createElement('div');
+     shareIcon.setAttribute('class','margin-left-small');
+     likeCommentShare.appendChild(shareIcon);
+
+
+     //*********************************************** */
+     // Elements/divs inside of The More options icon div
+
+
+     //bookmark  Icon
+    
+     let bookmarkIconContainer = document.createElement('div');
+     bookmarkIconContainer.setAttribute('class','QBdPU rrUvL');
+     bookmark.appendChild(bookmarkIconContainer);
+
+     /**--------------------------------------------------------------Layer 5----------------------------------------------- */
+      
+     
+     //*********************************************** */
+     // Elements/divs inside of The More options icon Element
+
+
+     // Circle 1X
+
+      let moreIconCircle = document.createElementNS("http://www.w3.org/2000/svg",'circle'); //?????????????????????????????????????????????????
+      setAttribute(moreIconCircle,{
+      cx:8,
+      cy:24,
+      r:4.5,
+      "clip-rule":"evenodd",
+      "fill-rule":"evenodd",
+      })
+   
+       // Circle 2X
+
+      let moreIconCircle2 = document.createElementNS("http://www.w3.org/2000/svg",'circle'); //?????????????????????????????????????????????????
+      setAttribute(moreIconCircle2,{
+        cx:24,
+        cy:24,
+        r:4.5,
+        "clip-rule":"evenodd",
+        "fill-rule":"evenodd",
+      })
+   
+         // Circle 3X
+
+      let moreIconCircle3 = document.createElementNS("http://www.w3.org/2000/svg",'circle'); //?????????????????????????????????????????????????
+      setAttribute(moreIconCircle3,{
+      cx:40,
+      cy:24,
+      r:4.5,
+      "clip-rule":"evenodd",
+      "fill-rule":"evenodd",
+       })
+
+     moreIcon.appendChild(moreIconCircle);
+     moreIcon.appendChild(moreIconCircle2);
+     moreIcon.appendChild(moreIconCircle3);
+
+    
+     //*********************************************** */
+     // Elements/divs inside of The Like Icon  Element
+
+
+     //Like Icon Span
+    
+     let likeIconSpan = document.createElement('span');
+     likeIcon.appendChild(likeIconSpan);
+
+     //*********************************************** */
+     // Elements/divs inside of The comment Icon  Element
+
+      //Comment Icon
+
+     let commentIconSvg = document.createElementNS("http://www.w3.org/2000/svg",'svg');
+     setAttribute(commentIconSvg,{
+      "aria-label":"Comment",
+      "class":"_8-yf5",
+      "fill":"#262626",
+      "height":"24",
+      "viewBox":"0 0 48 48",
+      "width":"24",
+     });
+    
+     commentIcon.appendChild(commentIconSvg);
+
+     //*********************************************** */
+     // Elements/divs inside of The Like Icon  Element
+ 
+      //Share Icon
+ 
+      let shareIconSvg = document.createElementNS("http://www.w3.org/2000/svg",'svg');
+      setAttribute(shareIconSvg,{
+       "aria-label":"Share Post",
+       "class":"_8-yf5",
+       "fill":"#262626",
+       "height":"24",
+       "viewBox":"0 0 48 48",
+       "width":"24",
+      });
+      shareIcon.appendChild(shareIconSvg);
+ 
+
+     //*********************************************** */
+     // Elements/divs inside of The Like Icon  Element
+
+     //bookmark icon 
+
+     let bookmarkIconSvg = document.createElementNS("http://www.w3.org/2000/svg",'svg');
+     setAttribute(bookmarkIconSvg,{
+      "aria-label":"Save",
+      "class":"_8-yf5",
+      "fill":"#262626",
+      "height":"24",
+      "viewBox":"0 0 48 48",
+      "width":"24",
+     });
+     bookmarkIconContainer.appendChild(bookmarkIconSvg);
+
+
+     /**--------------------------------------------------------------Layer 6----------------------------------------------- */
+    
+     //*********************************************** */
+     // Elements/divs inside of The Like Icon  Element
+    
+     //Like Icon Svg
+    
+     let likeIconSvg = document.createElementNS("http://www.w3.org/2000/svg",'svg');
+     setAttribute(likeIconSvg,{
+     "aria-label":"Like",
+     "class":"_8-yf5",
+     "fill":"#262626",
+     "height":"24",
+     "viewBox":"0 0 48 48",
+     "width":"24",
+     });
+     //likeIconSvg.style.backgroundColor = "#dd2c00";
+
+
+     //set multiple attributes with a fuction
+     likeIconSpan.appendChild(likeIconSvg);
+
+     //*********************************************** */
+     // Elements/divs inside of The comment Icon Path  Element
+
+     //Comment Icon Path
+
+     let commentIconSvgPath = document.createElementNS("http://www.w3.org/2000/svg",'path');
+     setAttribute(commentIconSvgPath,{
+      "clip-rule":"evenodd",
+      "d":"M47.5 46.1l-2.8-11c1.8-3.3 2.8-7.1 2.8-11.1C47.5 11 37 .5 24 .5S.5 11 .5 24 11 47.5 24 47.5c4 0 7.8-1 11.1-2.8l11 2.8c.8.2 1.6-.6 1.4-1.4zm-3-22.1c0 4-1 7-2.6 10-.2.4-.3.9-.2 1.4l2.1 8.4-8.3-2.1c-.5-.1-1-.1-1.4.2-1.8 1-5.2 2.6-10 2.6-11.4 0-20.6-9.2-20.6-20.5S12.7 3.5 24 3.5 44.5 12.7 44.5 24z",
+      "fill-rule":"evenodd",
+     })
+     commentIconSvg.appendChild(commentIconSvgPath);
+
+     
+     
+     //*********************************************** */
+     // Elements/divs inside of The Like Icon Path  Element
+
+     //Share Icon Path
+
+     let shareIconSvgPath = document.createElementNS("http://www.w3.org/2000/svg",'path');
+     shareIconSvgPath.setAttribute(
+     'd','M47.8 3.8c-.3-.5-.8-.8-1.3-.8h-45C.9 3.1.3 3.5.1 4S0 5.2.4 5.7l15.9 15.6 5.5 22.6c.1.6.6 1 1.2 1.1h.2c.5 0 1-.3 1.3-.7l23.2-39c.4-.4.4-1 .1-1.5zM5.2 6.1h35.5L18 18.7 5.2 6.1zm18.7 33.6l-4.4-18.4L42.4 8.6 23.9 39.7z')
+     shareIconSvg.appendChild(shareIconSvgPath);
+
+
+     
+     
+     //*********************************************** */
+     // Elements/divs inside of The Like Icon Path Element
+
+     //bookmark icon 
+      
+     let bookmarkIconSvgPath = document.createElementNS("http://www.w3.org/2000/svg",'path');
+     bookmarkIconSvgPath.setAttribute(
+     'd','M43.5 48c-.4 0-.8-.2-1.1-.4L24 29 5.6 47.6c-.4.4-1.1.6-1.6.3-.6-.2-1-.8-1-1.4v-45C3 .7 3.7 0 4.5 0h39c.8 0 1.5.7 1.5 1.5v45c0 .6-.4 1.2-.9 1.4-.2.1-.4.1-.6.1zM24 26c.8 0 1.6.3 2.2.9l15.8 16V3H6v39.9l15.8-16c.6-.6 1.4-.9 2.2-.9z')
+     bookmarkIconSvg.appendChild(bookmarkIconSvgPath);
+
+
+    /**--------------------------------------------------------------Layer 7----------------------------------------------- */
+    
+     //*********************************************** */
+     // Elements/divs inside of The Like Icon  Element
+      
+     let likeIconSvgPath = document.createElementNS("http://www.w3.org/2000/svg",'path');
+     likeIconSvgPath.setAttribute(
+      'd','M34.6 6.1c5.7 0 10.4 5.2 10.4 11.5 0 6.8-5.9 11-11.5 16S25 41.3 24 41.9c-1.1-.7-4.7-4-9.5-8.3-5.7-5-11.5-9.2-11.5-16C3 11.3 7.7 6.1 13.4 6.1c4.2 0 6.5 2 8.1 4.3 1.9 2.6 2.2 3.9 2.5 3.9.3 0 .6-1.3 2.5-3.9 1.6-2.3 3.9-4.3 8.1-4.3m0-3c-4.5 0-7.9 1.8-10.6 5.6-2.7-3.7-6.1-5.5-10.6-5.5C6 3.1 0 9.6 0 17.6c0 7.3 5.4 12 10.6 16.5.6.5 1.3 1.1 1.9 1.7l2.3 2c4.4 3.9 6.6 5.9 7.6 6.5.5.3 1.1.5 1.6.5.6 0 1.1-.2 1.6-.5 1-.6 2.8-2.2 7.8-6.8l2-1.8c.7-.6 1.3-1.2 2-1.7C42.7 29.6 48 25 48 17.6c0-8-6-14.5-13.4-14.5z')
+     likeIconSvg.appendChild(likeIconSvgPath);
+
+
+     /**--------------------------------------------------------------The End Of Creation ----------------------------------------------- */
    
 
-    // how do we handle update if the upload screen in called from the edit tab 
-    // the update button needs to be there
+      /**--------------------------------------------------------------Functions----------------------------------------------- */
+      
+       function setAttribute(el,attrs){
+        for(var key in attrs){
+          el.setAttribute(key,attrs[key])
+        }
+       }
+       
+      
+      /**--------------------------------------------------------------Buttons Actions----------------------------------------------- */
 
+
+    }
+  
 }
 new App();
   
