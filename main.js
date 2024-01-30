@@ -16,19 +16,15 @@ class App
     
     
     //log out button
-    this.logout = document.querySelector('#logout');
+    // this.logout = document.querySelector('#logout');
 
    /**------------------------------Upload screen ----------------------------------------- */
 
     //upload button
-     this.uploadButton = document.querySelector('#upload-button');
-
+    // this.uploadButton = document.querySelector('#upload-button');
    
-    // the post section/ elements
-    this.selectedMedia = document.querySelector('#upload-image');
-    
     //post button 
-    this.post = document.querySelector('#post-button');
+    this.post = document.querySelector('#Upload');
 
     //Update Button
     this.updatebutton = document.querySelector('#update-button')
@@ -52,59 +48,134 @@ class App
     
     this.handleAuth();
     this.handleDataPopulation();
-    
+   
     
     
     //sign out button 
-    this.logout.addEventListener('click', () => {
-      this.logout.style.display = "none";
+    this.signOut = document.querySelector('#logoutButton')
+    this.signOut.addEventListener('click', () => {
+      
       this.handleLogout();
     });
 
-    //uplaod button event listener calls the screen only 
-    this.uploadButton.addEventListener('click', () => {
-
-      this.uploadScreen();
-      var displayImage = document.getElementById('image-view');
-      displayImage.style.display = "none";
+    this.create = document.querySelector('.create');
+    //upload button event listener calls the screen only 
+    this.create.addEventListener('click', () => {
       
+      this.Update = document.querySelector('#update').style.display = 'none';
+      this.uploadScreen();
+      this.handelmageSelect();
+      
+     
     });
 
   
-    //image display on the screen dom selected images
-    this.selectedMedia.addEventListener("change",(e)=>{
-       
-      const reader = new FileReader();
 
-       this.files = e.target.files;
-      
-      for (const file of this.files) {
+  
 
-        //this.fileName = file.name;
-        console.log(this.fileName)
-
-      }
-
-      reader.addEventListener("load", () =>{
-
-        var uploaded_image = reader.result;
-        this.imageview = document.querySelector('#display').style.backgroundImage = `url(${uploaded_image})`
-      });
-      reader.readAsDataURL(this.files[0]);
-
-    });
-
+     
 
     //post button event listener uploads the information
-    this.post.addEventListener('click', () => {
+     this.post.addEventListener('click', () => {
     
-          this.handleUpload(this.fileName,this.files[0])
-    
-    });
+          //this.handleUpload(this.fileName,this.files[0])
+          
+          this.handleSipleUpload();
+          this.redirectToApp();
+   
+     });
+
+     this.profileButton = document.querySelector('#profile');
+
+     this.profileButton.addEventListener('click',()=>{
+
+         this.profileScreen = document.querySelector('#profilescren').style.display = 'block';
+         this.mainScreen = document.querySelector('.content').style.display = 'none';
+     })
+
+     this.homeButton = document.querySelector('.home');
+     this.homeButton.addEventListener('click',()=>{
+
+      this.profileScreen = document.querySelector('#profilescren').style.display = 'none';
+      this.mainScreen = document.querySelector('.content').style.display = 'block';
+
+     })
+
+
     
   }
 
+  
 
+   handelmageSelect(){
+
+    //Image select button 
+    const imageSelect = document.querySelector('.ImageSelect');
+    
+    imageSelect.addEventListener("click",() =>{ 
+    
+      var selectedImage = document.createElement('input');
+      selectedImage.type = 'file';
+      
+      selectedImage.onchange = e => 
+        {
+
+          const reader = new FileReader();
+
+          this.files = e.target.files;
+          
+          for (const file of this.files) {
+            this.fileName = file.name;
+            console.log(this.fileName)
+          }
+
+          reader.addEventListener("load", () =>{
+            var uploaded_image = reader.result;
+            //Image display
+            const imageDisplay = document.querySelector('.imageDisplay');
+            imageDisplay.style.backgroundImage = `url(${uploaded_image})`
+
+             // make the image select icon go away when the picture is rendered//
+             const imageSelectIcon = document.querySelector('.button');
+             imageSelectIcon.style.display = 'none';
+
+          });
+          reader.readAsDataURL(this.files[0]);
+
+          
+
+        }
+        
+        selectedImage.click();
+
+     });
+
+    // const selectedMedia = document.querySelector('#upload-image');
+    // selectedMedia.addEventListener("change",(e)=>{
+       
+    //   const reader = new FileReader();
+
+    //    this.files = e.target.files;
+      
+    //   for (const file of this.files) {
+
+    //     this.fileName = file.name;
+    //     console.log(this.fileName)
+
+    //   }
+
+    //   reader.addEventListener("load", () =>{
+
+    //     var uploaded_image = reader.result;
+    //     const imageview = document.querySelector('#display').style.backgroundImage = `url(${uploaded_image})`
+    //   });
+    //   reader.readAsDataURL(this.files[0]);
+
+    // });
+
+   
+   }
+  
     handleAuth(){
         auth.onAuthStateChanged((user) => {
           if (user) {
@@ -113,6 +184,9 @@ class App
             this.userId = user.uid;
             this.userName = user.displayName;
             this.redirectToApp();
+            this.handleUsername();
+        
+            
             
 
           } else {
@@ -123,11 +197,31 @@ class App
         });
     } 
 
+    handleUsername(){
+      const displayname = document.querySelector('.username');
+      const nametag = document.querySelector('.name');
+      const usernameProfile = document.querySelector('.username-profile-tab-name');
+      const secondusernameProfile = document.querySelector('.name-profile');
+
+      
+      
+      
+      displayname.textContent = this.userName;
+      nametag.textContent = this.userName;
+      usernameProfile.textContent = this.userName;
+      secondusernameProfile.textContent = this.userName;
+      
+    }
+
     redirectToApp(){
+      
         this.myAuth.style.display = "none";
         this.app.style.display = "block";
         this.upload.style.display = "none";
-
+        this.profileScreen = document.querySelector('#profilescren').style.display = 'none';
+        this.mainScreen = document.querySelector('.content').style.display = 'block';
+      
+       
     }
 
     redirectToAuth(){
@@ -166,51 +260,99 @@ class App
           });
     }
  
-    handleUpload(name,file){
+    handleSipleUpload(){
+
+      //Reff
+      var storageRef = firebase.storage().ref();
+      //var mountainsRef = storageRef.child('mountains.jpg');
+      const mountainImagesRef = storageRef.child('images/'+ this.fileName);
 
 
-        var metadata = {
-          contentType: 'image/jpeg',
-        };
+      // 'file' comes from the Blob or File API
+       mountainImagesRef.put(this.files[0]).then((snapshot) => {
+          console.log('Uploaded a blob or file!');
 
-           const  uidpin = this.userId
-            //console.log(uidpin);
+          mountainImagesRef.getDownloadURL().then((url)=>{
 
-        var storageRef = firebase.storage().ref();
-        var uploadTask = storageRef.child('images/' + name).put(file, metadata);
-        
-              uploadTask.snapshot.ref.getDownloadURL().then((url) =>
-            {
-            
-              var imageurl = url;
-              var description = document.querySelector('#upload-image-description');
-
-              var Post = db.collection("Users");
-              
-              Post.add({
-                UserPostId: this.userId,
-                PostUserName: this.userName,
-                Name: description.value,
-                Link: imageurl
-              });
-
-             alert("image added successfully")
-      
-
-             console.log("upload successful")
-             
-          },
-          
-          function(error){
+                //Caption
+                const caption = document.querySelector('#caption');
                 
-            alert("error in uploading Image:")
+                var Post = db.collection("Users");
+                
+                Post.add({
+                  UserPostId: this.userId,
+                  PostUserName: this.userName,
+                  Name: caption.value,
+                  Link: url
+                });
 
-          },
-          
-          
-          );
-        
+                this.redirectToApp();
+                
+          });
+
+        });
+
+      
+     
     }
+
+    handleUpdateUpload(id){
+
+      //Reff
+      var storage= firebase.storage().ref();
+      //var mountainsRef = storageRef.child('mountains.jpg');
+      var ImagesRef = storage.child('images/'+ this.fileName);
+
+        if(!this.files[0]){
+
+            // 'file' comes from the Blob or File API
+            ImagesRef.put(this.files[0]).then((snapshot) => {
+              console.log('Uploaded a blob or file!');
+
+              ImagesRef.getDownloadURL().then((url)=>{
+
+                var toBeUpdated = db.collection("Users").doc(id);
+                
+                //Caption
+                const caption = document.querySelector('#caption');
+            
+                toBeUpdated.update({
+                    Link: url,
+                    Name: caption.value
+                  })
+                  .then(() => {
+                    
+                    alert("Document successfully updated!");
+                  })
+                  .catch((error) => {
+                    
+                      alert("Error updating document: ", error);
+                  });
+                
+
+              });
+              
+            });
+        
+        }
+        else{
+            //Caption
+            const caption = document.querySelector('#caption');
+              
+            toBeUpdated.update({
+                Name: caption.value
+              })
+              .then(() => {
+                
+                alert("Document successfully updated!");
+              })
+              .catch((error) => {
+                
+                  alert("Error updating document: ", error);
+              });
+        }
+            
+    }  
 
     handleRead(Dataid){
 
@@ -219,14 +361,10 @@ class App
       
             docRef.get().then((doc) => {
                 if (doc.exists) {
-                    
-                    //console.log("Document data:", doc.data());
-                    //console.log(doc.data().Link)
-
+                   
                     this.imgLink = doc.data().Link;
                     this.caption = doc.data().Name
 
-                
                   } else {
                    
                     console.log("No such document!"+this.userId);
@@ -241,16 +379,21 @@ class App
 
     handleDataPopulation(){
    
-          db.collection("Users").get().then((querySnapshot) => {
-          querySnapshot.forEach((doc) => {
-      
-                //console.log(doc.id, " => ", doc.data());
-              
+          // db.collection("Users").get().then((querySnapshot) => {
+          // querySnapshot.forEach((doc) => {
+          //     this.handlePost(doc);
+
+          //   });
+          // });
+
+          db.collection("Users").onSnapshot((docs) => {
+          docs.forEach((doc) => {
               this.handlePost(doc);
 
             });
           });
- 
+
+
     }
 
     handleDelete(id){
@@ -266,28 +409,9 @@ class App
         });
 
     }
-      
-    handleUpdate(id){
-
-        var toBeUpdated = db.collection("Users").doc(id);
-        var description = document.querySelector('#upload-image-description');
-          
-        
-        toBeUpdated.update({
-             Name: description.value
-          })
-          .then(() => {
-            
-            alert("Document successfully updated!");
-          })
-          .catch((error) => {
-             
-              alert("Error updating document: ", error);
-          });
-
-    }
-
+     
     handleModalcall(id){
+
     //if the post id belongs to the same user uid and the same one currently logged in
     if(this.userId == id){
       //console.log(this.userId)
@@ -296,7 +420,6 @@ class App
 
       this.edit.style.color = "Red";
       this.delete.style.color = "Red";
-
       this.editModal.style.display = "block";
        
 
@@ -306,7 +429,6 @@ class App
       
       this.edit.style.display = "none";
       this.delete.style.display = "none";
-
       this.editModal.style.display = "block";
     }
     
@@ -314,20 +436,23 @@ class App
     }
 
     uploadScreen(){
-        this.myAuth.style.display = "none";
-        
+        this.myAuth.style.display = "none";   
         this.app.style.display = "none";
-        
         this.upload.style.display = "block";
+        
+        
     }
 
     handleImageRetrieve(){
 
-      var displayImage = document.getElementById('image-view');
-      displayImage.setAttribute('src', this.imgLink);
+       //Image display
+       const imageDisplay = document.querySelector('.imageDisplay');
+       imageDisplay.style.backgroundImage = `url(${this.imgLink})`
+       
     
-      var description = document.querySelector('#upload-image-description');
-      description.setAttribute('value',this.caption)
+       //Caption
+       const caption = document.querySelector('#caption');
+       caption.setAttribute('value',this.caption)
 
       
     }
@@ -605,21 +730,25 @@ class App
       
         this.uploadScreen();
         this.handleImageRetrieve();
+        this.handelmageSelect();
   
   
-        var displayImage = document.getElementById('image-view');
-        displayImage.style.display = "block";
+      //   var displayImage = document.getElementById('image-view');
+      //   displayImage.style.display = "block";
 
-       var imageview = document.querySelector('#display').style.display = "none";
+      //  var imageview = document.querySelector('#display').style.display = "none";
 
 
         this.post.style.display = "none";
-        this.updatebutton.style.display = "block";
+        // this.updatebutton.style.display = "block";
         this.editModal.style.display = "none";
   
            // Update button
-       this.updatebutton.addEventListener('click', () => {
-        this.handleUpdate(doc.id);
+        this.Update = document.querySelector('#update');
+        this.Update.addEventListener('click', () => {
+        this.handleUpdateUpload(doc.id);
+        this.redirectToApp();
+    
         }); 
   
        });
