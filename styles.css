@@ -73,7 +73,7 @@
     height: 22px;
 }
 
-.profile-pic img {
+.profile-image img {
     height: 22px;
     width: 22px;
     border-radius: 50%;
@@ -88,6 +88,7 @@
 .margin-left {
     margin-left: 22px;
 }
+
 .margin-left-small {
     margin-left: 14px;
 }
@@ -117,6 +118,7 @@ main {
 .sidebar {
     width: 293px;
     height: 100%;
+   
 }
 
 .stories {
@@ -274,8 +276,8 @@ main {
 .profile-details {
     display: flex;
     align-items: center;
-    margin: 18px 0 10px 0;
-    padding: 10px;
+    /* margin: 18px 0 10px 0;
+    padding: 10px; */
 
 }
 
@@ -369,4 +371,242 @@ main {
     display: flex;
     align-items: center;
     justify-content: center;
+}
+#display{
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  background-position: center; 
+}
+
+/* From here Nav menu styling */
+.side-nav{
+    height: 100vh;
+    width: 250px;
+    position: absolute;
+    left: 0px;
+    margin-top: -30px;
+    margin-bottom: -30px;
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid rgb(219, 219, 219);
+
+    position: fixed;
+}
+.menu-links div{
+    
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    cursor: pointer;
+    padding: 5px;
+
+    width: 200px;
+    height: 40px;
+
+    /* margin: 0px 16px;
+    padding: 5px; */
+}
+.nav-heading{
+    font-weight: 500;
+    cursor: pointer;
+}
+/* .menu-links svg{
+    width: 24px;
+    height: 24px;
+}
+.menu-links path{
+    width: 20px;
+    height: 20px;
+} */
+
+.profile{
+    
+    width: 200px;
+    height: 40px;
+    padding: 5px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.more{
+    display: flex;
+    align-items: center;
+    position: fixed;
+    bottom: 15px;
+    left: 0px;
+    z-index: 4;
+    margin-top: 20px;
+    border-radius: 5px;
+    width: 200px;
+    height: 40px;
+    padding-left: 5px
+
+}
+ 
+
+
+
+/* from here its the upload screen  */
+.ps{
+    width: 100%;
+    height: 100vh;
+    
+    display: flex;
+    align-items: center;
+    justify-content: center;
+   
+}   
+#upload-screen{
+
+    /* Hidden by default */
+    z-index: 1; /* Sit on top */
+    width: 32%; /* Full width */
+    height: 40%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgba(236, 236, 236, 0.973); /* Fallback color */
+    border-radius: 8px;
+
+    /* display: flex;
+    align-items: center;
+    justify-content: center; */
+    
+}
+.contaner{
+    
+    border: 3px solid rgb(239, 240, 239);
+    width: 450px;
+    height: 305px;
+    border-radius: 8px;
+
+    margin: auto;
+    padding: 20px;
+   
+    
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.display_and_image_selection{
+
+    position: relative;
+    width: 200px;
+    height: 300px;
+    border-radius: 3%;
+}
+.imageDisplay{
+    width: 100%;
+    height: 100%;
+    background-color: rgb(255, 255, 255);
+    border-radius: 3%;
+
+    border: 3px dotted lightgray;
+
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 200px 300px;
+}
+.button{
+    
+    width: 100px;
+    height: 30px;
+    position: absolute;
+    top: 42%;
+    left: 20%;
+    background-color: rgb(255, 255, 255);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.action_section{
+
+    width: 250px;
+    height: 300px;
+    border-radius: 3%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+.action_buttons{
+    width: 30%;
+    height: 30px;
+   
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 8px;
+}
+.post  svg{
+    width: 28px;
+    height: 28px;
+}
+.update  svg{
+    width: 45px;
+    height: 32px;
+}
+.icons{
+    display: flex;
+    align-items: center;
+}
+input{
+    border-radius: 10px;
+    height: 25px;
+}
+.ImageSelect svg{
+    background-color: rgb(255, 255, 255);
+    width: 30px;
+    height: 30px;
+    margin-top: 4px;
+}
+span{
+    background-color: rgb(255, 255, 255);
+}
+::placeholder{
+    margin: 2px;
+}
+
+/* From here its the profile section  */
+.profileSection{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+}
+.details{
+    padding: 10px;
+}
+.section1,
+.section2 ,
+.section3{
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.links,.search-tab{
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+.profileFooter{
+  
+    font-size: .7em;
+    font-weight: bold;
+}
+.profileScreen-profilepic img{
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    margin: 0px,0px,0px,5px;
+}
+.middlecontentSection{
+    display: flex;
+    flex-direction: column;
+}
+.profileScreen{
+    display: none;
 }
