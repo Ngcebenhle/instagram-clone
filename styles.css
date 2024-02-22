@@ -623,9 +623,10 @@ span{
     display: none;
 }
 
-.ownPostholder {
+.middlecontentSection {
     overflow: scroll;
-    background-color: green;
-    height: 350px;
+   
+    /* height: 450px; */
+    margin-right: 3px;
    
   }
