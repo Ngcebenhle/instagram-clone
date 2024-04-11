@@ -347,7 +347,7 @@ main {
     line-height: 14px;
     margin-left: 10px;
 }
-
+/* Modal styles */
 .body img {
     width: 100%;
 }
@@ -478,7 +478,6 @@ main {
     top: 30%;
     left: 35%;
 
-    background-color: red;
 
     display: flex;
     align-items: center;
@@ -519,7 +518,7 @@ main {
     background-position: center;
     background-size: 200px 300px;
 }
-.button,.updateImage{
+.updateImage{
     
     width: 100px;
     height: 30px;
@@ -530,6 +529,20 @@ main {
     display: flex;
     align-items: center;
     justify-content: center;
+    background: transparent;
+}
+.uploadbuttonicon{
+    
+    width: 100px;
+    height: 30px;
+    position: absolute;
+    top: 42%;
+    left: 13%;
+    background-color: rgb(255, 255, 255);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
 }
 .action_section{
 
@@ -559,6 +572,7 @@ main {
 .update  svg{
     width: 45px;
     height: 32px;
+    background: transparent;
 }
 .icons{
     display: flex;
@@ -568,7 +582,7 @@ input{
     border-radius: 10px;
     height: 25px;
 }
-.ImageSelect svg{
+.uploadbuttonicon svg{
     background-color: rgb(255, 255, 255);
     width: 30px;
     height: 30px;
