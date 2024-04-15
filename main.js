@@ -1,7 +1,13 @@
 class App {
   constructor() {
+
+
+    
+   this.auth = firebase.auth();
+
+
     this.userId = "";
-    this.ui = new firebaseui.auth.AuthUI(auth);
+    this.ui = new firebaseui.auth.AuthUI(this.auth);
 
     /**----------------------------------------------------------- */
     //screens and modal divs
@@ -157,7 +163,7 @@ class App {
   }
 
   handleAuth() {
-    auth.onAuthStateChanged((user) => {
+    this.auth.onAuthStateChanged((user) => {
       if (user) {
         this.userId = user.uid;
         this.userName = user.displayName;
